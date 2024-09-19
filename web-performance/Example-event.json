@@ -1,0 +1,11 @@
+{
+  "inputs": {
+    "testFileName": "test.jmx",
+    "threadsNumber": "10",
+    "env": "prod",
+    "time": "20m",
+    "testTag": "",
+    "folderPath": "",
+    "folderName": ""
+  }
+}

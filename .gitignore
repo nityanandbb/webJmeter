@@ -1,0 +1,103 @@
+# JMeter
+*.jtl
+*.log
+output.jtl
+*.csv
+*.jmx~
+
+# Taurus
+reports/
+*.xml
+*.html
+# *.json
+
+# Python (for Taurus extensions)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Logs and Reports
+*.log
+*.tmp
+*.temp
+reports/latest/
+reports/archive/
+*.out
+*.err
+
+# Shell script artifacts
+*.swp
+*~
+*.bak
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# General
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+*.tar.bz2
+*.tar
+*.gz
+*.bz2
+*.7z
+*.apk
+*.gem
+*.pyc
+*.pyo
+*.egg
+*.egg-info
+*.whl
+
+# Environment-specific files
+.env
+.env.local
+.env.*.local
+.envrc
+.envrc.local
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+.pnp/
+.pnp.js
+.eslintcache
+.parcel-cache/
+.cache/
+dist/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+.metadata/
+*.log
+*.bak
+*.swp
+*.orig
+*.swo

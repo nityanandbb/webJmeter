@@ -1,0 +1,105 @@
+name: JMeter Test Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      threadnumber:
+        description: 'Number of threads to use'
+        required: true
+        type: number
+      testfilesList:
+        description: 'List of test files and their paths (format: testfile|path)'
+        required: true
+        type: string
+      baseurl:
+        description: 'Base URL for the tests'
+        required: false
+        type: string
+      timeDuration:
+        description: 'Duration for the test'
+        required: false
+        type: string
+
+jobs:
+  jmeter-taurus-test-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set environment variables
+        run: |
+          echo "THREADS_NUMBER=${{ github.event.inputs.threadnumber }}" >> $GITHUB_ENV
+          echo "BASE_URL=${{ github.event.inputs.baseurl }}" >> $GITHUB_ENV
+          echo "TIME_DURATION=${{ github.event.inputs.timeDuration }}" >> $GITHUB_ENV
+          echo "TESTFILES_LIST=${{ github.event.inputs.testfilesList }}" >> $GITHUB_ENV
+          echo -e "\033[0;32mEnvironment setup is done:\033[0m"
+
+      - name: Validate Inputs
+        run: |
+          echo -e "\033[0;32mValidating inputs...\033[0m"
+          ls -alt web-performance/scripts
+          chmod +x ./web-performance/scripts/run_Taurus_Tests.sh
+          chmod +x ./web-performance/scripts/validate_inputs.sh
+          sleep 5
+          ./web-performance/scripts/validate_inputs.sh
+          echo -e "\033[0;32mValidated Inputs from GitHub:\033[0m"
+    
+      - name: Install required tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-8-jdk
+          sudo apt-get install -y jmeter
+          sudo apt-get install -y python3 python3-pip
+          sudo apt-get install -y chromium-browser
+          echo -e "\033[0;32mInstallations Done:\033[0m"
+          sleep 5
+
+      - name: Install Taurus
+        run: |
+          if ! command -v bzt &> /dev/null; then
+            pip3 install bzt
+            echo "export PATH=$HOME/.local/bin:\$PATH" >> $GITHUB_ENV
+          fi
+      
+      - name: Install xmlstarlet
+        run: sudo apt-get update && sudo apt-get install -y xmlstarlet
+
+      - name: Verify xmlstarlet installation
+        run: |
+          sleep 5
+          echo -e "\033[0;32mInstalled XML Starlet Done:\033[0m"
+          xmlstarlet --version
+
+      - name: Run JMeter test using Taurus
+        run: |
+          echo -e "\033[0;32mStarting executions:\033[0m"
+          chmod +x ./web-performance/scripts/run_Taurus_Tests.sh
+          sleep 5
+          ./web-performance/scripts/run_Taurus_Tests.sh
+
+      - name: ZIP Export Taurus Reports
+        run: |
+          chmod +x ./web-performance/scripts/zip_reports.sh
+          ./web-performance/scripts/zip_reports.sh
+          chmod +x web-performance/reports/taurusReports.zip
+          
+      - name: Upload Taurus Reports as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: taurus-reports
+          path: web-performance/reports/taurusReports.zip
+
+      - name: Set version
+        env:
+          VERSION: ${{ github.sha }}
+        run: |
+          echo "Version: $VERSION" > version.txt
+
+      - name: Commit version
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add version.txt
+          git commit -m "Update version"
+          git push origin main

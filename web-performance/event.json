@@ -1,0 +1,9 @@
+
+{
+  "inputs": {
+    "threadnumber":10,
+    "testfilesList":"n.jmx|web-performance/jmeter/tests/performance Orders.jmx|web-performance/jmeter/tests/performance",
+    "baseurl": "https://example.com",
+    "timeDuration": "1h"
+  }
+}

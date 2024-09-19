@@ -1,0 +1,19 @@
+execution:
+- scenario:
+    script: ../jmeter/tests/test1.jmx
+  concurrency: ${threads}
+  ramp-up: 10s
+  hold-for: 1m
+  iterations: 10
+- scenario:
+    script: ../jmeter/tests/test2.jmx
+  concurrency: ${threads}
+  ramp-up: 10s
+  hold-for: 1m
+  iterations: 10  
+- scenario:
+    script: ../jmeter/tests/test3.jmx
+  concurrency: ${threads}
+  ramp-up: 10s
+  hold-for: 1m
+  iterations: 1
