@@ -37,11 +37,12 @@ if ! [[ "$THREAD_COUNT" =~ ^[0-9]+$ ]] || [ "$THREAD_COUNT" -eq 0 ]; then
 fi
 
 # Save the original thread count value to revert later
-ORIGINAL_THREAD_COUNT=$(xmlstarlet sel -t -v "//ThreadGroup/stringProp[@name='ThreadGroup.num_threads']" "${TEST_FILE}")
+ORIGINAL_THREAD_COUNT=$(xmlstarlet sel -t -v "//ThreadGroup/intProp[@name='ThreadGroup.num_threads']" "${TEST_FILE}")
 
 # Update thread count in the .jmx file
+echo "Updating thread count in $1 to $2"
 echo -e "${YELLOW}Updating thread count in ${TEST_FILE} to ${THREAD_COUNT}${NC}"
-xmlstarlet ed -u "//ThreadGroup/stringProp[@name='ThreadGroup.num_threads']" -v "${THREAD_COUNT}" "${TEST_FILE}" > "${TEST_FILE}.tmp" && mv "${TEST_FILE}.tmp" "${TEST_FILE}"
+xmlstarlet ed -u "//ThreadGroup/intProp[@name='ThreadGroup.num_threads']" -v "${THREAD_COUNT}" "${TEST_FILE}" > "${TEST_FILE}.tmp" && mv "${TEST_FILE}.tmp" "${TEST_FILE}"
 
 # If the script is called with no second argument, it is not supposed to run anything, just update
 if [ "$THREAD_COUNT" != "1" ]; then

@@ -86,15 +86,32 @@ execute_tests() {
 
         echo -e "${INFO} ${BLUE}Executing ${FILE} ${testfile} from ${folderpath}${NC}"
 
-        # Update thread count
-        echo -e "${INFO} ${GREEN}Updating thread count for ${FILE} ${testfile}${NC}"
+        # Copy the file using copy_file.sh and store the result in temptestfile
+        echo -e "${INFO} ${GREEN}Copying the file for test ${FILE} ${testfile}${NC}"
+        chmod +x ./web-performance/scripts/copy_file.sh
+
+        # Extract the file path only, assuming copy_file.sh outputs both success message and path
+        temptestfile=$(./web-performance/scripts/copy_file.sh "$fullPath" | tail -n 1)  # Capture only the last line which should be the path
+        
+        sleep 30
+        echo -e "${INFO} ${GREEN}Temp file for test: ${temptestfile}${NC}"
+
+        # Check if the copy was successful
+        if [ ! -f "$temptestfile" ]; then
+            echo -e "${CROSS_MARK} ${RED}Failed to copy file: ${fullPath}. Aborting.${NC}"
+            exit 1
+        fi        
+
+        # Update thread count in the copied file (temptestfile)
+        echo -e "${INFO} ${GREEN}Updating thread count for ${FILE} ${temptestfile}${NC}"
         chmod +x ./web-performance/scripts/threads_count_update.sh
-        ./web-performance/scripts/threads_count_update.sh "${fullPath}" "${THREAD_COUNT}"
+        ./web-performance/scripts/threads_count_update.sh "${temptestfile}" "${THREAD_COUNT}"
 
-        echo -e "${INFO} ${GREEN} Command: bzt ${fullPath}${NC}"
+        sleep 10
 
-        # Run the bzt command and capture its output in a temporary file while displaying it
-        bzt "${fullPath}" -report 2>&1 | tee "$temp_output"
+        # Run the bzt command on the copied file (temptestfile) and capture its output
+        echo -e "${INFO} ${GREEN}Running bzt on ${FILE} ${temptestfile}${NC}"
+        bzt "${temptestfile}" -report 2>&1 | tee "$temp_output"
 
         # Process the temporary log file to extract URLs
         chmod +x ./web-performance/scripts/extract_urls.sh 
@@ -106,9 +123,22 @@ execute_tests() {
         # Adding a sleep to ensure logs appear
         sleep 30
 
-        # Revert thread count after test
-        echo -e "${INFO} ${GREEN}Reverting thread count for ${FILE} ${testfile}${NC}"
+        # Revert thread count after test in the copied file (temptestfile)
+        echo -e "${INFO} ${GREEN}Reverting thread count for ${FILE} ${temptestfile}${NC}"
         chmod +x ./web-performance/scripts/threads_count_update.sh
-        ./web-performance/scripts/threads_count_update.sh "${fullPath}" 1  # Revert to default or original thread count if needed
+        ./web-performance/scripts/threads_count_update.sh "${temptestfile}" 1  # Revert to default or original thread count if needed
+
+        # Call delete_copy.sh to delete the copied file (temptestfile)
+        echo -e "${INFO} ${GREEN}Deleting the copied file ${temptestfile}${NC}"
+        chmod +x ./web-performance/scripts/delete_file.sh
+        ./web-performance/scripts/delete_file.sh "${temptestfile}"
+
+        # Check if the file deletion was successful
+        if [ $? -ne 0 ]; then
+            echo -e "${CROSS_MARK} ${RED}Failed to delete the copied file: ${temptestfile}.${NC}"
+        else
+            echo -e "${CHECK_MARK} ${GREEN}Copied file deleted successfully: ${temptestfile}${NC}"
+        fi
+
     done
 }
