@@ -93,7 +93,7 @@ execute_tests() {
         # Extract the file path only, assuming copy_file.sh outputs both success message and path
         temptestfile=$(./web-performance/scripts/copy_file.sh "$fullPath" | tail -n 1)  # Capture only the last line which should be the path
         
-        sleep 30
+        sleep 120
         echo -e "${INFO} ${GREEN}Temp file for test: ${temptestfile}${NC}"
 
         # Check if the copy was successful
@@ -101,14 +101,13 @@ execute_tests() {
             echo -e "${CROSS_MARK} ${RED}Failed to copy file: ${fullPath}. Aborting.${NC}"
             exit 1
         fi        
-
+       
         # Update thread count in the copied file (temptestfile)
         echo -e "${INFO} ${GREEN}Updating thread count for ${FILE} ${temptestfile}${NC}"
         chmod +x ./web-performance/scripts/threads_count_update.sh
         ./web-performance/scripts/threads_count_update.sh "${temptestfile}" "${THREAD_COUNT}"
 
-        sleep 10
-
+        sleep 60
         # Run the bzt command on the copied file (temptestfile) and capture its output
         echo -e "${INFO} ${GREEN}Running bzt on ${FILE} ${temptestfile}${NC}"
         bzt "${temptestfile}" -report 2>&1 | tee "$temp_output"
