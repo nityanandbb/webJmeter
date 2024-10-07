@@ -110,11 +110,11 @@ execute_tests() {
         sleep 60
         # Run the bzt command on the copied file (temptestfile) and capture its output
         echo -e "${INFO} ${GREEN}Running bzt on ${FILE} ${temptestfile}${NC}"
-        bzt "${temptestfile}" -report 2>&1 | tee "$temp_output"
+        #bzt "${temptestfile}" -report 2>&1 | tee "$temp_output"
 
         # Process the temporary log file to extract URLs
         chmod +x ./web-performance/scripts/extract_urls.sh 
-        ./web-performance/scripts/extract_urls.sh "$testfile" < "$temp_output"
+       # ./web-performance/scripts/extract_urls.sh "$testfile" < "$temp_output"
 
         # Clean up the temporary log file
         rm "$temp_output"
