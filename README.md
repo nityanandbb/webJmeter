@@ -85,3 +85,12 @@ find  " ThreadGroup.num_threads "
 >> add thread var count  :- ${__P(threadCount,1)}
 
 it should look like :-  <intProp name="ThreadGroup.num_threads">${__P(threadCount,1)}</intProp>
+
+web-performance/jmeter/tests/performance/assignment5.jmx
+
+./scripts/threads_count_update.sh "jmeter/tests/performance/assignment3.jmx" "2322"
+
+jmeter/tests/performance/assignment3.jmx
+
+./scripts/threadAlt.sh "jmeter/tests/performance/assignment3.jmx" "2322"
+./scripts/threads_count_update.sh "jmeter/tests/performance/tm.jmx" "2322"

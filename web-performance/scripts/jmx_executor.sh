@@ -93,7 +93,7 @@ execute_tests() {
         # Extract the file path only, assuming copy_file.sh outputs both success message and path
         temptestfile=$(./web-performance/scripts/copy_file.sh "$fullPath" | tail -n 1)  # Capture only the last line which should be the path
         
-        sleep 120
+        sleep 60
         echo -e "${INFO} ${GREEN}Temp file for test: ${temptestfile}${NC}"
 
         # Check if the copy was successful
@@ -107,14 +107,14 @@ execute_tests() {
         chmod +x ./web-performance/scripts/threads_count_update.sh
         ./web-performance/scripts/threads_count_update.sh "${temptestfile}" "${THREAD_COUNT}"
 
-        sleep 60
+        sleep 20
         # Run the bzt command on the copied file (temptestfile) and capture its output
         echo -e "${INFO} ${GREEN}Running bzt on ${FILE} ${temptestfile}${NC}"
-        #bzt "${temptestfile}" -report 2>&1 | tee "$temp_output"
+        bzt "${temptestfile}" -report 2>&1 | tee "$temp_output"
 
         # Process the temporary log file to extract URLs
         chmod +x ./web-performance/scripts/extract_urls.sh 
-       # ./web-performance/scripts/extract_urls.sh "$testfile" < "$temp_output"
+        ./web-performance/scripts/extract_urls.sh "$testfile" < "$temp_output"
 
         # Clean up the temporary log file
         rm "$temp_output"
