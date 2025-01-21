@@ -1,34 +1,3 @@
-This error occurs because Python 3.12 (which is being used in your workflow) no longer includes `distutils` by default. Let's fix this by either installing `setuptools` which includes `distutils`, or by specifying a slightly older Python version. Here's how we can modify your workflow:
-
-Option 1 - Install setuptools (Preferred approach):
-```yaml
-      - name: Install Taurus
-        run: |
-          if ! command -v bzt &> /dev/null; then
-            pip3 install setuptools
-            pip3 install bzt
-            echo "export PATH=$HOME/.local/bin:\$PATH" >> $GITHUB_ENV
-          fi
-```
-
-Option 2 - Specify Python 3.11 instead of using the default version:
-```yaml
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Taurus
-        run: |
-          if ! command -v bzt &> /dev/null; then
-            pip3 install bzt
-            echo "export PATH=$HOME/.local/bin:\$PATH" >> $GITHUB_ENV
-          fi
-```
-
-I recommend using Option 1 (installing setuptools) first, as it's a simpler change. Here's your complete workflow with this fix:
-
-```yaml
 name: JMeter Test Run
 
 on:
@@ -54,7 +23,6 @@ on:
 jobs:
   jmeter-taurus-test-run:
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -122,6 +90,3 @@ jobs:
         with:
           name: taurus-reports
           path: web-performance/reports/taurusReports.zip
-```
-
-This should resolve the `ModuleNotFoundError: No module named 'distutils'` error by installing the required `setuptools` package before installing Taurus.
