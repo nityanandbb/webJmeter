@@ -1,64 +1,15 @@
-This error occurs because Python 3.12 (which is being used in your workflow) no longer includes `distutils` by default. Let's fix this by either installing `setuptools` which includes `distutils`, or by specifying a slightly older Python version. Here's how we can modify your workflow:
-
-Option 1 - Install setuptools (Preferred approach):
-```yaml
-      - name: Install Taurus
-        run: |
-          if ! command -v bzt &> /dev/null; then
-            pip3 install setuptools
-            pip3 install bzt
-            echo "export PATH=$HOME/.local/bin:\$PATH" >> $GITHUB_ENV
-          fi
-```
-
-Option 2 - Specify Python 3.11 instead of using the default version:
-```yaml
+jobs:
+  jmeter-taurus-test-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # Updated to v4 for better security
+      
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Install Taurus
-        run: |
-          if ! command -v bzt &> /dev/null; then
-            pip3 install bzt
-            echo "export PATH=$HOME/.local/bin:\$PATH" >> $GITHUB_ENV
-          fi
-```
-
-I recommend using Option 1 (installing setuptools) first, as it's a simpler change. Here's your complete workflow with this fix:
-
-```yaml
-name: JMeter Test Run
-
-on:
-  workflow_dispatch:
-    inputs:
-      threadnumber:
-        description: 'Number of threads to use'
-        required: true
-        type: number
-      testfilesList:
-        description: 'List of test files and their paths (format: testfile|path)'
-        required: true
-        type: string
-      baseurl:
-        description: 'Base URL for the tests'
-        required: false
-        type: string
-      timeDuration:
-        description: 'Duration for the test'
-        required: false
-        type: string
-
-jobs:
-  jmeter-taurus-test-run:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      
       - name: Set environment variables
         run: |
           echo "THREADS_NUMBER=${{ github.event.inputs.threadnumber }}" >> $GITHUB_ENV
@@ -76,7 +27,7 @@ jobs:
           sleep 5
           ./web-performance/scripts/validate_inputs.sh
           echo -e "\033[0;32mValidated Inputs from GitHub:\033[0m"
-
+    
       - name: Install required tools
         run: |
           sudo apt-get update
@@ -90,11 +41,10 @@ jobs:
       - name: Install Taurus
         run: |
           if ! command -v bzt &> /dev/null; then
-            pip3 install setuptools
             pip3 install bzt
             echo "export PATH=$HOME/.local/bin:\$PATH" >> $GITHUB_ENV
           fi
-
+      
       - name: Install xmlstarlet
         run: sudo apt-get update && sudo apt-get install -y xmlstarlet
 
@@ -116,12 +66,9 @@ jobs:
           chmod +x ./web-performance/scripts/zip_reports.sh
           ./web-performance/scripts/zip_reports.sh
           chmod +x web-performance/reports/taurusReports.zip
-
+          
       - name: Upload Taurus Reports as Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4  # Updated to v4
         with:
           name: taurus-reports
           path: web-performance/reports/taurusReports.zip
-```
-
-This should resolve the `ModuleNotFoundError: No module named 'distutils'` error by installing the required `setuptools` package before installing Taurus.
